@@ -13,3 +13,7 @@
 
 ## Chapter 4
 1. `String.strip()` supports **Unicode whitespace**, while `String.trim()` does **not**.
+2. The **String pool** is a special memory region in the **JVM** used to **store and reuse identical string literals**, reducing memory overhead. You can use **intern()** to do it manually.
+
+## Chapter 5 
+1. **Static** variables can be called even the object has a null references.
