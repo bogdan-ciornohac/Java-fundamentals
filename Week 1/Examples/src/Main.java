@@ -8,9 +8,15 @@ public class Main {
         System.out.print(count + "-");
     }
 
+    public static int LENGTH = 5;
+ static {
+           LENGTH = 10;
+           }
+
     public static void main(String[] args) {
         Random r = new Random();
         System.out.println(r.nextInt(10));
+      
 
         System.out.printf("Proba:%d\n",1);
         final var one = 1;
@@ -68,10 +74,10 @@ public class Main {
         System.out.println(builder);
 
 
-        
+
     }
 
-
+    public void flute(String[] values,int[] nums) {}
 
     void compareIntegers(Number number) {
         if (number instanceof Integer data) {
@@ -111,11 +117,15 @@ public class Main {
 
     void getHatSize(Number measurement) {
         boolean keepGoing = true;
+
         int result = 15, meters = 10;
         do {
             meters--;
             if (meters==8) keepGoing = false;
             result -= 2;
+            int var = 1;
         } while (keepGoing);
     }
+
+    public void moo(int m, int…n){};
 }
