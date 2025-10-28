@@ -2,3 +2,6 @@
 
 ## Chapter 6
 1. **Private constructors** prevent instantiation and the automatic creation of a default constructor — ideal for **static utility classes** or **singleton patterns**.
+
+## Chapter 7
+1. **Enum** can have a **private** constructor, but not **public**  or **protected**.

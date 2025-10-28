@@ -1,4 +1,4 @@
-# Java OCP — Chapter 5 Cheatsheet: Inheritance and Class Design
+# Java OCP — Chapter 6 Cheatsheet: Inheritance and Class Design
 
 ## 🔹 Inheritance Basics
 - **Single inheritance:** Each class has exactly **one direct superclass**.  
@@ -93,3 +93,113 @@ public final class Person {
 - Identify **illegal overrides** (wrong return type or access level).
 - Understand **abstract method inheritance** from multiple sources.
 - Know the **initialization order** cold — it’s a favorite exam trick.
+
+
+
+# 🧩 Chapter 7 — Advanced Object-Oriented Design Cheatsheet
+
+## 🔹 Interfaces
+- Java supports **multiple inheritance through interfaces**.  
+- **Implicit modifiers:**
+  - For interface: `public abstract`
+  - For variables: `public static final`
+  - For methods:
+    - **Abstract** → `public abstract`
+    - **Default** → `public`
+    - **Static** → `public`
+    - **Private** → (no modifier)
+    - **Private static** → `private static`
+
+### ✅ Interface Member Types (6)
+1. Abstract methods  
+2. Static constants (fields)  
+3. Default methods  
+4. Static methods  
+5. Private methods  
+6. Private static methods  
+
+---
+
+## 🔹 Enums
+- **Compile-time constants** that may include constructors, methods, and fields.  
+- Can be used in `switch` statements and expressions.  
+- **Abstract methods in enums** → every constant must implement them.
+
+```java
+enum Day {
+    MONDAY { void greet() { System.out.println("Start strong!"); } },
+    FRIDAY { void greet() { System.out.println("Almost done!"); } };
+    abstract void greet();
+}
+```
+
+---
+
+## 🔹 Sealed Classes and Interfaces
+- Restrict which subclasses can extend or implement them.  
+- Subclasses must be `final`, `sealed`, or `non-sealed`.  
+- If all subclasses are in the **same file**, `permits` clause can be omitted.
+
+```java
+public sealed class Animal permits Dog, Cat {}
+final class Dog extends Animal {}
+non-sealed class Cat extends Animal {}
+```
+
+- **Sealed interfaces** limit which types can implement or extend them.
+
+---
+
+## 🔹 Records
+- **Immutable, encapsulated POJOs** with compiler-generated boilerplate.
+- Auto-generated: constructor, accessors, `equals()`, `hashCode()`, `toString()`.
+- Can define static members, methods, nested types.
+- Cannot have additional instance variables.
+- Support overloaded and compact constructors for validation.
+
+```java
+public record Person(String name, int age) {
+    public Person {
+        if (age < 0) throw new IllegalArgumentException("Age must be positive");
+    }
+}
+```
+
+---
+
+## 🔹 Nested Classes
+| Type | Static? | Access Outer? | Common Use |
+|------|----------|----------------|-------------|
+| **Inner** | ❌ | ✅ | Associated with instance |
+| **Static Nested** | ✅ | ❌ | Helper or grouping logic |
+| **Local** | ❌ | ✅ (final/effectively final vars) | Inside method/block |
+| **Anonymous** | ❌ | ✅ | Inline implementation |
+
+**Rules:**
+- Inner, Local, and Anonymous classes can access **private members** of the outer class.  
+- Anonymous classes must **extend one class or implement one interface**.
+
+---
+
+## 🔹 Polymorphism
+- Objects can be accessed via superclass or interface references.  
+- **Casting:**
+  - Compile-time: checks reference type compatibility.  
+  - Runtime: checks actual object type.  
+
+```java
+Animal a = new Dog();
+Dog d = (Dog) a; // ✅ OK
+Cat c = (Cat) a; // ❌ ClassCastException
+```
+
+---
+
+## 🧠 Exam Tips
+- Memorize the **six interface member types**.  
+- Understand **sealed class rules**.  
+- Spot illegal **record declarations** or **mutable fields**.  
+- Master **nested class access rules**.  
+- Know **compile-time vs runtime** casting differences.
+
+---
