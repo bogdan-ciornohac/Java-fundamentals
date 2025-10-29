@@ -1,4 +1,174 @@
-# Java OCP — Chapter 6 Cheatsheet: Inheritance and Class Design
+# ☕ Java OCP Study Guide 
+
+A consolidated study guide and cheatsheet for the **OCP Java Developer Exam**.  
+Each chapter includes key concepts and **📝 Exam Tips**.
+
+---
+
+# 📘 Chapter 1 — Java Building Blocks
+
+## 🔹 Program Structure
+- Java starts execution with the **main()** method:  
+  `public static void main(String[] args)`
+- Arguments are passed after the class name:  
+  `java ClassName firstArgument`
+- Arguments are indexed starting at **0**.
+
+## 🔹 Packages & Imports
+- Code is organized into **packages** (folders).  
+- Use **import statements** to reference other packages.  
+- Wildcard imports (`import package.*;`) include only **classes**, not subpackages.  
+- The `java.lang` package is **imported automatically**.
+
+## 🔹 File Structure
+1. `package` statement (if any)  
+2. `import` statements (if any)  
+3. `class/interface` declaration  
+4. Fields and methods can appear in any order.
+
+## 🔹 Variables
+- **Primitive types** are basic building blocks.  
+- **Reference types** can be `null` and have methods.  
+- **Numeric literals** may include underscores (`_`), not at the start/end or next to a decimal point.  
+- **Wrapper classes** exist for each primitive type.  
+- **Text blocks** allow multiline Strings using triple quotes (""" ... """).  
+- **Local variables** must be initialized before use.  
+- **var** infers the type at **compile time** and doesn’t change.
+
+## 🔹 Variable Scope
+- **Instance variables** → non-static fields  
+- **Class variables** → static fields  
+- **Local variables** → declared in methods/constructors/blocks
+
+## 🔹 Constructors & Garbage Collection
+- Constructors share the class name and have **no return type**.  
+- **Initialization order:** fields → blocks → constructor.  
+- **Garbage collection** removes unreachable objects (no remaining references).
+
+## 📝 Exam Tips
+- Watch for incorrect `main()` signatures.  
+- Remember import order rules.  
+- Distinguish between primitive and reference variable behavior.  
+- Be able to identify when objects become **eligible for GC**.
+
+---
+
+# 📗 Chapter 2 — Operators
+
+## 🔹 Operator Types
+- **Unary, binary, and ternary** operators.  
+- Know **precedence** and **associativity** rules.  
+- Parentheses change evaluation order.
+
+## 🔹 Common Operator Groups
+- Arithmetic (`+`, `-`, `*`, `/`, `%`)  
+- Comparison (`==`, `!=`, `<`, `>`, `<=`, `>=`)  
+- Logical (`&&`, `||`, `!`)  
+- Bitwise (`&`, `|`, `^`, `~`, `<<`, `>>`, `>>>`)  
+- Assignment (`=`, `+=`, etc.)  
+- Ternary (`condition ? a : b`)
+
+## 📝 Exam Tips
+- Be cautious of **type promotion** (e.g., `int` + `long` → `long`).  
+- Understand **autoboxing/unboxing** in operations.  
+- Check **operator misuse** — common hidden errors on the exam.  
+- Expect operator questions disguised as other topics (e.g., NIO, exceptions).
+
+---
+
+# 📙 Chapter 3 — Making Decisions
+
+## 🔹 Control Flow
+- **if / else** → basic branching  
+- **switch / switch expressions** → flexible control, supports pattern matching (Java 21)  
+- **Pattern matching** simplifies type checking and casting.
+
+## 🔹 Loops
+- **while / do-while** → condition-based repetition  
+- **for / for-each** → simplified iteration  
+- Always ensure termination conditions are valid.
+
+## 🔹 Flow Control
+- `break`, `continue`, and `return` affect execution flow.  
+- **Labels** allow control statements in nested loops.
+
+## 📝 Exam Tips
+- Review **switch expression syntax** and arrow form.  
+- Watch for loops that **never terminate** or skip initialization.  
+- Be precise with **label use** in nested loops.  
+- Expect many “Does not compile” traps on control structures.
+
+---
+
+# 📒 Chapter 4 — Core APIs
+
+## 🔹 Strings and StringBuilder
+- `String` is **immutable**; operations create new objects.  
+- `StringBuilder` is **mutable** and efficient for modifications.  
+- `==` checks reference equality; `equals()` checks content for `String`.  
+- For `StringBuilder`, both `==` and `equals()` check references.
+
+## 🔹 Arrays
+- Fixed-size, zero-indexed memory structure.  
+- Created with `new Type[size]`.  
+- Key methods:
+  - `Arrays.sort()` — sorts array
+  - `Arrays.binarySearch()` — finds index in sorted array
+  - `Arrays.compare()` / `mismatch()` — compare arrays  
+- **Varargs (`...`)** act like arrays in parameters.
+
+## 🔹 Date and Time API
+- `LocalDate`, `LocalTime`, `LocalDateTime` — immutable time classes.  
+- Created via `now()` or `of()`.  
+- Manipulated with `plus()`, `minus()`, `with()`, `at()`.  
+- `Period` represents date differences.
+
+## 📝 Exam Tips
+- Understand **immutability** for Strings and Dates.  
+- Practice **array indexing** and `binarySearch()` results.  
+- Know **autoboxing** with Arrays and Collections.  
+- Expect subtle questions mixing **String** and **StringBuilder**.
+
+---
+
+# 📕 Chapter 5 — Methods and Encapsulation
+
+## 🔹 Method Declaration
+- Order: [access modifier] [optional specifier] [return type] [name(parameters)] [throws list] { body }  
+- Common access modifiers: `private`, (default), `protected`, `public`.  
+- Optional specifier: `static`, `final`.
+
+## 🔹 Access Modifiers
+| Modifier | Visibility |
+|-----------|-------------|
+| `private` | Same class only |
+| *default* | Same package |
+| `protected` | Same package + subclasses |
+| `public` | Everywhere |
+
+## 🔹 Static Members
+- Shared across all instances.  
+- Called using `ClassName.method()`.  
+- `static` members **cannot** access instance members directly.  
+- `import static` allows direct access without class prefix.
+
+## 🔹 Final Modifier
+- Used on variables, methods, and classes.  
+- Local variables are **effectively final** if not reassigned.  
+
+## 🔹 Method Overloading
+- Same name, different parameter list.  
+- Java picks the **most specific match**: exact → wider → autobox → varargs.
+
+## 📝 Exam Tips
+- Know **access modifier rules** cold.  
+- Understand **pass-by-value** for primitives and objects.  
+- Review **autoboxing** in overloads.  
+- Watch for illegal **static vs instance** member access.
+
+---
+
+# 🧠 Chapter 6 — Inheritance and Class Design
 
 ## 🔹 Inheritance Basics
 - **Single inheritance:** Each class has exactly **one direct superclass**.  
