@@ -373,3 +373,58 @@ Cat c = (Cat) a; // ❌ ClassCastException
 - Know **compile-time vs runtime** casting differences.
 
 ---
+# 🧮 Chapter 8 — Lambda Expressions and Functional Interfaces
+
+## 🔹 Lambda Basics
+- **Lambda expressions** let you pass blocks of code as method arguments.
+- Full form syntax:
+  ```java
+  (String a, String b) -> { return a.equals(b); }
+  ```
+- Parameter types can be **omitted**, and if there’s **one parameter**, parentheses can be removed:
+  ```java
+  a -> a.equals(b)
+  ```
+- Braces, semicolon, and `return` can be omitted for single statements.
+
+## 🔹 Scope and Variable Rules
+- Lambdas can access:
+  - **Instance and class variables**
+  - **Local variables** that are *final* or *effectively final*
+- Parameter or variable names **cannot conflict** with existing local variables.
+
+## 🔹 Method References
+A shorter form of writing lambdas referring to existing methods.  
+There are **four types**:
+1. **Static method reference:** `ClassName::staticMethod`
+2. **Instance method on a specific object:** `instance::method`
+3. **Instance method on a parameter:** `ClassName::instanceMethod`
+4. **Constructor reference:** `ClassName::new`
+
+## 🔹 Functional Interfaces
+- A **functional interface** has a **single abstract method (SAM)**.
+- Any functional interface can be implemented using a lambda.
+
+### ✅ Common Functional Interfaces
+
+| Functional Interface | Return Type | Method Name | Parameters |
+|----------------------|-------------|--------------|-------------|
+| `Supplier<T>` | `T` | `get()` | 0 |
+| `Consumer<T>` | `void` | `accept(T)` | 1 (T) |
+| `BiConsumer<T,U>` | `void` | `accept(T,U)` | 2 (T, U) |
+| `Predicate<T>` | `boolean` | `test(T)` | 1 (T) |
+| `BiPredicate<T,U>` | `boolean` | `test(T,U)` | 2 (T, U) |
+| `Function<T,R>` | `R` | `apply(T)` | 1 (T) |
+| `BiFunction<T,U,R>` | `R` | `apply(T,U)` | 2 (T, U) |
+| `UnaryOperator<T>` | `T` | `apply(T)` | 1 (T) |
+| `BinaryOperator<T>` | `T` | `apply(T,T)` | 2 (T, T) |
+
+## 📝 Exam Tips
+- Understand **lambda syntax variations** — long vs. short form.  
+- Memorize the **eight core functional interfaces**.  
+- Know that **lambdas require functional interfaces**.  
+- Be able to identify **method reference types** quickly.  
+- Remember variable scope: only *final* or *effectively final* locals can be used.  
+- Expect lambda questions tied to **Streams and Collections** in later chapters.
+
+---
