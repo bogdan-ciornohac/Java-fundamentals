@@ -428,3 +428,411 @@ There are **four types**:
 - Expect lambda questions tied to **Streams and Collections** in later chapters.
 
 ---
+
+# 🧱 Chapter 9 — Collections and Generics
+
+## 🔹 Java Collections Framework Overview
+The **Java Collections Framework (JCF)** includes four main types of data structures:
+- **List**
+- **Set**
+- **Queue / Deque**
+- **Map**
+
+The `Collection` interface is the parent interface for `List`, `Set`, and `Queue`.  
+`Deque` extends `Queue`.  
+The `Map` interface **does not extend Collection**.
+
+---
+
+## 🔹 List
+- **Ordered collection** that allows **duplicates**.
+- **Implementations:**
+  - `ArrayList` → Standard resizable list.
+  - `LinkedList` → Efficiently adds/removes from beginning or end.
+
+---
+
+## 🔹 Set
+- **No duplicate elements allowed.**
+- **Implementations:**
+  - `HashSet` → Unordered, uses `hashCode()` for lookup.
+  - `LinkedHashSet` → Maintains insertion (encounter) order.
+  - `TreeSet` → Sorted set (no `null` allowed).
+
+---
+
+## 🔹 Queue / Deque
+- Orders elements for **processing** (FIFO or LIFO depending on use).
+- **Implementations:**
+  - `ArrayDeque` → Double-ended queue (no `null` allowed).
+  - `LinkedList` → Can act as both queue and list.
+
+---
+
+## 🔹 Map
+- Maps **unique keys** to **values**.
+- **Implementations:**
+  - `HashMap` → Unordered, uses `hashCode()` for key lookup.
+  - `LinkedHashMap` → Maintains insertion (encounter) order.
+  - `TreeMap` → Sorted by key (no `null` keys allowed).
+
+---
+
+## 🔹 Sequenced Collections (Java 21+)
+Java 21 introduces **Sequenced Collections** — types with a defined **encounter order**.
+
+| Interface | Implementations |
+|------------|------------------|
+| `SequencedCollection` | `ArrayDeque`, `ArrayList`, `LinkedList`, `LinkedHashSet`, `TreeSet` |
+| `SequencedSet` | `LinkedHashSet`, `TreeSet` |
+| `SequencedMap` | `LinkedHashMap`, `TreeMap` |
+
+---
+
+## 🔹 Comparable vs Comparator
+
+### Comparable
+- Declared via the `Comparable` interface.
+- Method: `compareTo(T o)`
+- Used for **natural ordering** of elements.
+- Returns:
+  - Negative → smaller  
+  - Zero → equal  
+  - Positive → greater
+- Example:
+  ```java
+  class Product implements Comparable<Product> {
+      public int compareTo(Product p) {
+          return this.id - p.id;
+      }
+  }
+  ```
+
+### Comparator
+
+* Declared via the `Comparator` interface.
+* Method: `compare(T o1, T o2)`
+* Used for **custom ordering**.
+* Can be implemented using a **lambda expression**:
+
+  ```java
+  Comparator<Product> byName = (a, b) -> a.getName().compareTo(b.getName());
+  ```
+
+---
+
+## 🔹 Generics
+
+Generics allow **type-safe** and **reusable** code using **type parameters**.
+
+### Declaring Generics
+
+```java
+class Box<T> {
+    private T content;
+    public void set(T content) { this.content = content; }
+    public T get() { return content; }
+}
+```
+
+* `<T>` → Type parameter (common convention: `T`, `E`, `K`, `V`)
+* Enforces **compile-time type safety**
+
+---
+
+## 🔹 Wildcards in Generics
+
+| Type            | Description                    | Example                  |
+| --------------- | ------------------------------ | ------------------------ |
+| `<?>`           | Unbounded wildcard (any type)  | `List<?>`                |
+| `<? extends T>` | Upper bound: `T` or subclass   | `List<? extends Number>` |
+| `<? super T>`   | Lower bound: `T` or superclass | `List<? super Integer>`  |
+
+### Rules
+
+* **Unbounded** or **upper-bounded** wildcards → cannot add new elements.
+* **Lower-bounded** wildcards → can safely add elements of type `T` or its subclasses.
+
+---
+
+## 📝 Exam Tips
+
+* Know the difference between **Collection**, **List**, **Set**, **Queue**, and **Map**.
+* Memorize which implementations maintain **order**, **sorting**, and **allow nulls**.
+* Understand **Sequenced Collections (Java 21)**.
+* Remember that **TreeSet** and **TreeMap** do not allow `null` values/keys.
+* Be able to write and interpret **Comparable** and **Comparator** logic.
+* Review **Generics** syntax and **wildcard rules**.
+* Expect tricky questions on what can or cannot be **added** to a collection when using wildcards.
+
+---
+
+
+# 🔢 Chapter 10 — Optional, Streams, and Collectors
+
+## 🔹 Optional Basics
+`Optional<T>` is a container that may or may not hold a value.
+
+| Method | Purpose |
+|:--|:--|
+| `isPresent()` | Returns true if a value exists |
+| `get()` | Retrieves the value (if present) |
+| `orElse(T t)` | Returns value or a default |
+| `orElseThrow()` | Throws `NoSuchElementException` if empty |
+| `ifPresent(Consumer c)` | Runs `c` when a value exists |
+| `orElseGet(Supplier s)` | Lazily creates a fallback value |
+| `orElseThrow(Supplier s)` | Lazily throws a custom exception |
+
+**Primitive Optionals**
+- `OptionalInt`, `OptionalLong`, `OptionalDouble`
+- Accessors: `getAsInt()`, `getAsLong()`, `getAsDouble()`
+
+**Tips**
+- Prefer `orElseGet()` over `orElse()` when the default is expensive.
+- Avoid chaining `get()` without `isPresent()` → use `map()` or `flatMap()` instead.
+
+---
+
+## 🔹 Stream Pipeline Structure
+Every stream pipeline has three parts:
+
+1. **Source** — collection, array, generator, I/O, etc.  
+2. **Intermediate operations** (0 or more) — return a new Stream, lazy.  
+3. **Terminal operation** (1 only) — triggers execution and consumes the stream.
+
+### Common Intermediate Ops
+| Operation | Description |
+|:--|:--|
+| `filter(Predicate)` | Keeps elements matching the predicate |
+| `map(Function)` | Transforms elements |
+| `flatMap(Function)` | Flattens nested streams |
+| `sorted()` | Natural ordering / custom `Comparator` |
+
+### Common Terminal Ops
+| Operation | Purpose |
+|:--|:--|
+| `forEach()` | Performs action on each element |
+| `count()` | Counts elements |
+| `collect()` | Gathers results into a collection / map |
+| `allMatch()`, `anyMatch()`, `noneMatch()` | Predicate tests on the whole stream |
+
+**Key Point:** Streams are **lazy** — nothing runs until a terminal operation is invoked.
+
+---
+
+## 🔹 Primitive Streams
+Primitive specializations avoid boxing overhead:  
+`IntStream`, `LongStream`, `DoubleStream`.
+
+| Feature | Description |
+|:--|:--|
+| `range(start, end)` | half-open → from start to end (exclusive) |
+| `rangeClosed(start, end)` | inclusive → from start to end (inclusive) |
+| `sum()`, `average()`, `max()`, `min()` | Built-in aggregate ops |
+| `summaryStatistics()` | Returns count, sum, min, avg, max at once |
+
+**Example**
+```java
+IntStream.rangeClosed(1, 5).sum(); // returns 15
+```
+
+---
+
+## 🔹 Collectors and Reduction
+
+`Collectors` convert streams back to collections or aggregated forms.
+
+| Collector                                         | Result                                |
+| :------------------------------------------------ | :------------------------------------ |
+| `toList()`, `toSet()`, `toMap()`                  | Basic collections                     |
+| `joining(", ")`                                   | Concatenate Strings                   |
+| `counting()`, `summingInt()`, `averagingDouble()` | Numeric reductions                    |
+| `groupingBy(Function)`                            | Group by key → `Map<K, List<V>>`      |
+| `partitioningBy(Predicate)`                       | Boolean map → `Map<Boolean, List<V>>` |
+| `teeing(c1, c2, merger)`                          | Combine two collector results         |
+
+**Partitioning vs Grouping**
+
+* Grouping: any key type possible.
+* Partitioning: always `true` and `false` keys (both exist even if empty).
+
+---
+
+## 🔹 Functional Interfaces Recap in Streams
+
+Streams work heavily with:
+
+* `Predicate<T>` → `filter`, `allMatch`
+* `Function<T,R>` → `map`
+* `Consumer<T>` → `forEach`
+* `Supplier<T>` → `generate`
+* `Comparator<T>` → `sorted`
+
+---
+
+## 📝 Exam Tips
+
+* Remember **Optionals** are wrappers — they are *not* Serializable or Collections.
+* Know difference between `orElse()` (eager) and `orElseGet()` (lazy).
+* Streams cannot be reused after a terminal op.
+* `flatMap()` flattens stream-of-streams — a common trick question.
+* Primitive streams are exclusive for `range()` and inclusive for `rangeClosed()`.
+* `Collectors.groupingBy()` vs `partitioningBy()` → memorize their signatures.
+* Understand how **lazy evaluation** defers execution until the terminal stage.
+
+---
+
+
+# 🌍 Chapter 11 — Exceptions, Localization, and Resource Bundles
+
+## 🔹 Exception Handling Overview
+Java’s exception system helps applications respond gracefully to runtime issues.
+
+### Exception Types
+| Type | Inherits From | Must Be Handled/Declared? | Example |
+|------|----------------|----------------------------|----------|
+| **Checked** | `Exception` (but *not* `RuntimeException`) | ✅ Yes | `IOException`, `SQLException` |
+| **Unchecked** | `RuntimeException` or `Error` | ❌ No | `NullPointerException`, `ArrayIndexOutOfBoundsException` |
+
+**Key rule:**  
+- **Checked exceptions** must be *handled or declared* using `throws`.  
+- **Unchecked exceptions** do not need to be handled or declared.  
+- **Do not catch `Error`** — these represent serious system issues.
+
+---
+
+## 🔹 Custom Exceptions
+You can define your own exceptions by extending:
+- `Exception` → for **checked** exceptions  
+- `RuntimeException` → for **unchecked** exceptions  
+
+**Example:**
+```java
+class InvalidOrderException extends Exception {
+    public InvalidOrderException(String msg) { super(msg); }
+}
+```
+
+✅ Always include meaningful messages — they appear in stack traces.
+
+---
+
+## 🔹 Try-with-Resources
+
+The **try-with-resources** statement automatically closes resources (like streams or files).
+Resources must implement `AutoCloseable` or `Closeable`.
+
+**Syntax:**
+
+```java
+try (BufferedReader br = new BufferedReader(new FileReader("data.txt"))) {
+    return br.readLine();
+}
+```
+
+* Resources close **in reverse order** of declaration.
+* If multiple exceptions occur, the one thrown during close() becomes **suppressed**.
+
+**Access suppressed exceptions:**
+
+```java
+for (Throwable t : e.getSuppressed()) System.out.println(t);
+```
+
+---
+
+## 🔹 Number & Date Formatting
+
+Java provides flexible **formatting classes** for locale-sensitive output.
+
+### Common Formatters
+
+| Class                           | Purpose                                                    |
+| ------------------------------- | ---------------------------------------------------------- |
+| `NumberFormat`                  | Formats numeric, currency, and percentage values           |
+| `DateTimeFormatter`             | Formats and parses date/time values                        |
+| `CompactNumberFormat` (Java 21) | Displays numbers in short/long form (e.g., 1K, 1 thousand) |
+
+**Example:**
+
+```java
+NumberFormat nf = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
+System.out.println(nf.format(1200)); // 1.2K
+```
+
+---
+
+## 🔹 Localization & Locale
+
+Localization means adapting an application for different **languages and regions**.
+
+* A `Locale` is created using language and optional country code:
+
+  ```java
+  new Locale("en");       // English
+  new Locale("en", "US"); // U.S. English
+  ```
+* Codes:
+
+  * **Language:** lowercase (`en`, `fr`)
+  * **Country:** uppercase (`US`, `FR`)
+
+**Formatting example:**
+
+```java
+Locale fr = new Locale("fr", "FR");
+NumberFormat currency = NumberFormat.getCurrencyInstance(fr);
+System.out.println(currency.format(1234.56)); // 1 234,56 €
+```
+
+---
+
+## 🔹 Resource Bundles
+
+A `ResourceBundle` stores locale-specific key/value pairs in `.properties` files.
+
+**Lookup order:**
+
+1. Most specific locale →
+2. Parent locale →
+3. Default locale →
+4. Default resource bundle
+
+Once Java finds a match, it **stays within that hierarchy** for all lookups.
+
+**Example:**
+
+```
+Messages_en.properties
+Messages_en_US.properties
+Messages_fr.properties
+```
+
+```java
+ResourceBundle rb = ResourceBundle.getBundle("Messages", Locale.US);
+System.out.println(rb.getString("welcome"));
+```
+
+---
+
+## 🧠 Design Principle
+
+By externalizing exceptions, formats, and messages:
+
+* You make applications **resilient to change**.
+* You support **internationalization (i18n)** and **localization (l10n)**.
+* You improve **maintainability** for global deployment.
+
+---
+
+## 📝 Exam Tips
+
+* Understand the **difference between checked and unchecked** exceptions.
+* Know how **try-with-resources** automatically closes and suppresses exceptions.
+* Remember **Locale** syntax: language (lowercase) + country (uppercase).
+* Practice reading **custom number/date formats** and **CompactNumberFormat** output.
+* Learn **ResourceBundle fallback rules** — from most specific to default.
+* Don’t catch `Error` — ever.
+
+---
+
