@@ -5,6 +5,25 @@ Each chapter includes key concepts and **📝 Exam Tips**.
 
 ---
 
+# 📘 Java OCP Study Guide — Table of Contents
+
+## 📚 Core Concepts
+1. [Chapter 1 — Java Building Blocks](#-chapter-1--java-building-blocks)
+2. [Chapter 2 — Operators](#-chapter-2--operators)
+3. [Chapter 3 — Making Decisions](#-chapter-3--making-decisions)
+4. [Chapter 4 — Core APIs](#-chapter-4--core-apis)
+5. [Chapter 5 — Methods and Encapsulation](#-chapter-5--methods-and-encapsulation)
+6. [Chapter 6 — Practice Answers](#-chapter-6--practice-answers)
+7. [Chapter 7 — Advanced Object-Oriented Design](#-chapter-7--advanced-object-oriented-design)
+8. [Chapter 8 — Lambda Expressions and Functional Interfaces](#-chapter-8--lambda-expressions-and-functional-interfaces)
+9. [Chapter 9 — Collections and Generics](#-chapter-9--collections-and-generics)
+10. [Chapter 10 — Optional, Streams, and Collectors](#-chapter-10--optional-streams-and-collectors)
+11. [Chapter 11 — Exceptions, Localization, and Resource Bundles](#-chapter-11--exceptions-localization-and-resource-bundles)
+12. [Chapter 12 — The Java Platform Module System (JPMS)](#-chapter-12--the-java-platform-module-system-jpms)
+13. [Chapter 13 — Concurrency and Parallel Streams](#-chapter-13--concurrency-and-parallel-streams)
+14. [Chapter 14 — I/O and NIO.2: Reading and Writing Data](#-chapter-14--io-and-nio2-reading-and-writing-data)
+
+
 # 📘 Chapter 1 — Java Building Blocks
 
 ## 🔹 Program Structure
@@ -1380,5 +1399,3 @@ Also supports **OS-specific attributes** (e.g., POSIX, DOS).
 * Expect exam questions about **try-with-resources** and **suppressed exceptions**.
 
 ---
-
-
