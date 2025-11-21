@@ -836,3 +836,549 @@ By externalizing exceptions, formats, and messages:
 
 ---
 
+# 🧩 Chapter 12 — The Java Platform Module System (JPMS)
+
+## 🔹 Introduction
+The **Java Platform Module System (JPMS)** organizes code at a higher level than packages.  
+A module encapsulates related packages and explicitly declares its dependencies and exports.  
+The core module `java.base` is automatically required by all other modules.
+
+Each module includes:
+- One or more packages
+- A `module-info.java` descriptor
+
+---
+
+## 🔹 Compiling & Running Modules
+### Compilation
+```bash
+javac -d mods/com.example.app \
+  src/com.example.app/module-info.java src/com.example.app/com/example/app/Main.java
+```
+
+### Running
+
+```bash
+java --module-path mods -m com.example.app/com.example.app.Main
+```
+
+* `--module-path` (`-p`) → path where modules are located
+* `--module` (`-m`) → specifies the module and main class in the format `moduleName/className`
+
+---
+
+## 🔹 Module Declarations
+
+A `module-info.java` file defines the module’s metadata and relationships.
+
+### Common Directives
+
+| Directive                                             | Purpose                                                         |
+| ----------------------------------------------------- | --------------------------------------------------------------- |
+| `exports package.name;`                               | Makes a package accessible outside the module                   |
+| `exports package.name to other.module;`               | Exports only to a specific module                               |
+| `requires module.name;`                               | Declares dependency on another module                           |
+| `requires transitive module.name;`                    | Makes the dependency transitively required                      |
+| `opens package.name;`                                 | Allows reflection access (for frameworks like JSON/XML mappers) |
+| `uses service.Interface;`                             | Declares that this module consumes a service                    |
+| `provides service.Interface with service.impl.Class;` | Declares that this module provides an implementation            |
+
+**Example:**
+
+```java
+module com.bookbazaar.app {
+    requires com.bookbazaar.model;
+    requires transitive com.bookbazaar.utils;
+    exports com.bookbazaar.app.api;
+    uses com.bookbazaar.payment.PaymentGateway;
+    provides com.bookbazaar.payment.PaymentGateway
+        with com.bookbazaar.payment.impl.CreditCardPayment;
+}
+```
+
+---
+
+## 🔹 Inspecting and Managing Modules
+
+Java offers multiple tools to work with modules:
+
+| Tool                                 | Purpose                                                           |
+| ------------------------------------ | ----------------------------------------------------------------- |
+| `java --list-modules`                | Lists available modules in the runtime                            |
+| `java --describe-module module.name` | Describes module contents                                         |
+| `jar --describe-module`              | Displays information about a module JAR                           |
+| `jdeps`                              | Prints package and module dependencies                            |
+| `jmod`                               | Used for `.jmod` archives (for platform modules)                  |
+| `jlink`                              | Creates a **custom runtime image** containing only needed modules |
+| `jpackage`                           | Builds an **application image** for OS distribution               |
+
+---
+
+## 🔹 Types of Modules
+
+| Type                 | Description                                                                         | Location        |
+| -------------------- | ----------------------------------------------------------------------------------- | --------------- |
+| **Named module**     | Has a `module-info.java`; lives on the **module path**; can read only other modules | `--module-path` |
+| **Automatic module** | JAR on module path without `module-info.java`; automatically gets a name            | `--module-path` |
+| **Unnamed module**   | Legacy JAR or class on the classpath; can read everything but not read by others    | `--class-path`  |
+
+**Example of automatic module naming:**
+
+* If a JAR has `Automatic-Module-Name: com.utils` in its manifest → that becomes its module name.
+
+---
+
+## 🔹 Migration Strategies
+
+### 1. Top-Down Migration
+
+* Start with **high-level modules** (those with many dependencies).
+* Move them to the module path first.
+* Place dependent legacy code temporarily on the classpath.
+
+### 2. Bottom-Up Migration
+
+* Start with **leaf modules** (few or no dependencies).
+* Gradually move one module at a time to the module path.
+* Ensures stability and avoids dependency breakage.
+
+### ⚠️ Rule: No Cyclic Dependencies
+
+JPMS **does not allow cyclic dependencies** between modules.
+Refactor packages to remove cycles before modularizing.
+
+---
+
+## 🔹 Key Commands Recap
+
+| Command                                                                                      | Description                 |
+| -------------------------------------------------------------------------------------------- | --------------------------- |
+| `javac -p mods -d out src/module-info.java src/...`                                          | Compiles a module           |
+| `java -p out -m module/class`                                                                | Runs a module               |
+| `jar --create --file=app.jar -C out/module .`                                                | Packages module as JAR      |
+| `jdeps --module-path mods -s out/app.jar`                                                    | Summarizes dependencies     |
+| `jlink --module-path $JAVA_HOME/jmods:mods --add-modules module.name --output customruntime` | Creates a minimal runtime   |
+| `jpackage --input out --name AppName --main-jar app.jar`                                     | Creates a native app bundle |
+
+---
+
+## 🧠 Design Benefits
+
+* **Strong encapsulation:** Only exported packages are visible externally.
+* **Reliable configuration:** Fails fast on missing dependencies.
+* **Custom runtime images:** Smaller footprint with only needed modules.
+* **Better maintainability:** Clear boundaries between components.
+
+---
+
+## 📝 Exam Tips
+
+* Remember `java.base` is **implicitly required** by all modules.
+* Know the difference between `exports` and `opens`.
+* `requires transitive` allows dependency propagation.
+* Recognize the three module types: **named**, **automatic**, **unnamed**.
+* Learn the purposes of **jdeps**, **jmod**, **jlink**, and **jpackage**.
+* Know migration strategies and **why cyclic dependencies break builds**.
+* On the exam, **expect code snippets** of `module-info.java` files with tricky directive combinations.
+
+---
+
+# ⚙️ Chapter 13 — Concurrency and Parallel Streams
+
+## 🔹 Threads Overview
+Java provides two main types of threads:
+- **Platform threads** — traditional OS-managed threads.
+- **Virtual threads** (Java 21) — lightweight, managed by the JVM, allowing massive concurrency with minimal overhead.
+
+Threads represent units of execution.  
+You define their work using a `Runnable` or `Callable`.
+
+### Creating Threads
+```java
+Runnable task = () -> System.out.println("Running in " + Thread.currentThread().getName());
+Thread t = new Thread(task);
+t.start();
+```
+
+**Using Callable**
+
+```java
+Callable<String> task = () -> "Result";
+Future<String> result = Executors.newSingleThreadExecutor().submit(task);
+System.out.println(result.get());
+```
+
+* `Runnable` → no return value.
+* `Callable` → returns a result or throws an exception.
+
+---
+
+## 🔹 ExecutorService
+
+The **Concurrency API** simplifies thread management via executors.
+
+### Creating Executors
+
+| Executor Type                   | Description                         |
+| ------------------------------- | ----------------------------------- |
+| `newSingleThreadExecutor()`     | One worker thread                   |
+| `newFixedThreadPool(int n)`     | Reuses a fixed number of threads    |
+| `newCachedThreadPool()`         | Dynamically grows/shrinks threads   |
+| `newScheduledThreadPool(int n)` | Supports delayed and periodic tasks |
+
+**Example:**
+
+```java
+ExecutorService service = Executors.newFixedThreadPool(4);
+service.submit(() -> processOrder());
+service.shutdown();
+```
+
+### Scheduled Executor
+
+```java
+ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+scheduler.scheduleAtFixedRate(() -> System.out.println("Tick"), 1, 2, TimeUnit.SECONDS);
+```
+
+---
+
+## 🔹 Thread Safety
+
+**Thread safety** means multiple threads can access shared data **without corruption**.
+
+### Common Tools
+
+| Mechanism         | Description                                            |
+| ----------------- | ------------------------------------------------------ |
+| `synchronized`    | Locks methods or blocks to prevent simultaneous access |
+| `Lock` interface  | Explicit control over locking/unlocking                |
+| `Atomic*` classes | Perform atomic (indivisible) operations                |
+| `CyclicBarrier`   | Waits until all threads reach a common point           |
+| `volatile`        | Guarantees visibility of changes across threads        |
+
+**Example:**
+
+```java
+synchronized void increment() { count++; }
+```
+
+---
+
+## 🔹 Concurrent Collections
+
+Collections in `java.util.concurrent` are designed for multi-threaded environments.
+
+| Class                   | Description                                     |
+| ----------------------- | ----------------------------------------------- |
+| `ConcurrentHashMap`     | Thread-safe hash map with segment-level locking |
+| `CopyOnWriteArrayList`  | Recreates list on modification (read-heavy)     |
+| `ConcurrentLinkedQueue` | Non-blocking queue                              |
+| `BlockingQueue`         | Supports producer/consumer patterns             |
+| `ConcurrentSkipListMap` | Thread-safe sorted map                          |
+
+**Tip:**
+Use concurrent collections instead of manual synchronization when possible.
+
+---
+
+## 🔹 Common Concurrency Issues
+
+| Issue              | Description                                      | Example Problem                                                    |
+| ------------------ | ------------------------------------------------ | ------------------------------------------------------------------ |
+| **Deadlock**       | Threads wait on each other indefinitely          | Thread A locks 1 and waits for 2, Thread B locks 2 and waits for 1 |
+| **Starvation**     | Threads never get CPU time                       | High-priority threads monopolize resources                         |
+| **Livelock**       | Threads keep changing state but make no progress | Two threads repeatedly yielding to each other                      |
+| **Race condition** | Threads read/write shared data unsafely          | Multiple increments on shared counter                              |
+
+🧠 **For the exam:** Know the definitions and simple scenarios, not full debugging solutions.
+
+---
+
+## 🔹 Parallel Streams
+
+Parallel streams automatically distribute stream operations across multiple threads.
+
+**Example:**
+
+```java
+List<String> list = List.of("a", "b", "c", "d");
+list.parallelStream()
+    .map(String::toUpperCase)
+    .forEach(System.out::println);
+```
+
+### Benefits
+
+* Improves performance on large datasets.
+* Handles splitting and joining automatically.
+
+### Risks
+
+* Order of processing is **not guaranteed**.
+* Avoid **stateful lambdas** (modifying shared variables).
+* Only use when the workload is **CPU-bound** and data is large enough to justify threading overhead.
+
+**Example of unsafe operation:**
+
+```java
+List<Integer> data = new ArrayList<>();
+IntStream.range(0, 1000).parallel().forEach(data::add); // ❌ race condition
+```
+
+---
+
+## 🔹 Virtual Threads (Java 21+)
+
+Virtual threads are lightweight, allowing millions of concurrent tasks.
+
+**Example:**
+
+```java
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    IntStream.range(0, 10).forEach(i ->
+        executor.submit(() -> System.out.println("Task " + i))
+    );
+}
+```
+
+✅ Automatically managed by JVM; no manual pooling required.
+
+---
+
+## 🧠 Best Practices
+
+* Use `ExecutorService` instead of raw `Thread`.
+* Use `try-with-resources` with executors (Java 21+) to auto-shutdown.
+* Keep shared state immutable or synchronized.
+* Prefer **atomic** or **concurrent** classes for shared data.
+* Avoid blocking operations in **parallel streams**.
+* Choose virtual threads for I/O-bound workloads.
+
+---
+
+## 📝 Exam Tips
+
+* Know differences between **Runnable** and **Callable**.
+* Understand **ExecutorService** creation, shutdown, and scheduling.
+* Identify **thread-safe classes** vs unsafe ones.
+* Be able to spot **deadlock**, **starvation**, and **race conditions**.
+* Recognize **parallel stream pitfalls** — stateful lambdas, unordered output.
+* Understand when and why to use **virtual threads**.
+* Remember: **Atomic classes** and **Concurrent Collections** are your safest tools.
+
+---
+
+
+# 📂 Chapter 14 — I/O and NIO.2: Reading and Writing Data
+
+## 🔹 Overview
+This chapter focuses on **reading and writing data** in Java — both the traditional I/O API (`java.io`) and the modern **NIO.2 API** (`java.nio.file`).  
+You’ll learn how to:
+- Create, read, and manipulate files and directories.
+- Work with streams for input/output.
+- Use NIO.2’s `Path`, `Files`, and `FileSystem` utilities.
+- Handle metadata and serialization.
+
+---
+
+## 🔹 I/O vs NIO.2
+| Feature | `java.io` | `java.nio.file` (NIO.2) |
+|----------|------------|--------------------------|
+| Core Type | `File` | `Path` |
+| Introduced In | Java 1.0 | Java 7 |
+| Style | Stream-based, blocking | Channel/Path-based, flexible |
+| Supports Metadata | Limited | Extensive |
+| Stream API Support | No | Yes (e.g. `Files.lines()`) |
+
+---
+
+## 🔹 Working with Files and Paths
+
+### Creating Paths
+```java
+Path p1 = Path.of("data", "input.txt");
+Path p2 = Paths.get("/home/user/docs/file.txt");
+```
+
+### Combining & Resolving Paths
+
+```java
+Path base = Path.of("/data");
+Path full = base.resolve("file.txt"); // /data/file.txt
+Path parent = full.getParent();       // /data
+```
+
+### Normalizing Paths
+
+Removes redundant elements like `.` and `..`:
+
+```java
+Path p = Path.of("/data/../temp/file.txt").normalize(); // /temp/file.txt
+```
+
+---
+
+## 🔹 NIO.2 Stream API
+
+The `Files` class provides convenient stream-based methods.
+
+| Method                                 | Description                                |
+| :------------------------------------- | :----------------------------------------- |
+| `Files.list(Path)`                     | Stream of direct children (not recursive)  |
+| `Files.walk(Path)`                     | Stream of all descendants (recursive)      |
+| `Files.find(Path, depth, BiPredicate)` | Search by condition                        |
+| `Files.lines(Path)`                    | Stream of file lines (lazy, UTF-8 default) |
+
+**Example:**
+
+```java
+Files.walk(Path.of("src"))
+     .filter(Files::isRegularFile)
+     .forEach(System.out::println);
+```
+
+---
+
+## 🔹 Files Helper Methods
+
+`Files` contains dozens of static helper methods — the **method names describe their purpose** clearly.
+
+| Method                                       | Purpose                              |
+| -------------------------------------------- | ------------------------------------ |
+| `exists(path)`                               | Check file/directory presence        |
+| `isDirectory(path)`                          | Verify if path is directory          |
+| `createFile(path)` / `createDirectory(path)` | Create new file/directory            |
+| `copy(source, target, REPLACE_EXISTING)`     | Copy files                           |
+| `move(source, target)`                       | Move or rename                       |
+| `delete(path)`                               | Delete file/directory                |
+| `readAllLines(path)`                         | Read all lines into a `List<String>` |
+| `write(path, bytes)`                         | Write binary data to file            |
+
+⚠️ Most of these methods can throw an **IOException**, and many accept **varargs enums** like `StandardOpenOption.APPEND`.
+
+---
+
+## 🔹 I/O Streams
+
+Streams handle **byte** or **character** data flow.
+
+### Stream Types
+
+| Category              | Example Classes                           | Description              |
+| --------------------- | ----------------------------------------- | ------------------------ |
+| **Byte Streams**      | `FileInputStream`, `FileOutputStream`     | Raw binary data          |
+| **Character Streams** | `FileReader`, `FileWriter`                | Text data                |
+| **Buffered Streams**  | `BufferedReader`, `BufferedWriter`        | Improves performance     |
+| **Print Streams**     | `PrintStream`, `PrintWriter`              | Formatted output         |
+| **Object Streams**    | `ObjectInputStream`, `ObjectOutputStream` | Serialization of objects |
+
+### Wrapping Streams
+
+Common pattern:
+
+```java
+try (var in = new BufferedReader(new FileReader("input.txt"))) {
+    in.lines().forEach(System.out::println);
+}
+```
+
+---
+
+## 🔹 Serialization
+
+To persist objects, a class must implement `Serializable`.
+
+**Example:**
+
+```java
+class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    String name;
+}
+```
+
+```java
+try (var out = new ObjectOutputStream(new FileOutputStream("user.ser"))) {
+    out.writeObject(new User("Alice"));
+}
+```
+
+* Transient fields (`transient`) are **not serialized**.
+* Deserialization restores objects using the binary representation.
+
+---
+
+## 🔹 Console and System Streams
+
+**System Streams:**
+
+* `System.in` → Input stream
+* `System.out` → Standard output
+* `System.err` → Error output
+
+**Console API:**
+
+```java
+Console console = System.console();
+String name = console.readLine("Enter name: ");
+char[] password = console.readPassword("Password: ");
+```
+
+✅ Console provides **secure input** for passwords and formatted printing.
+
+---
+
+## 🔹 File Metadata with NIO.2
+
+You can retrieve and modify file attributes efficiently using `Files`.
+
+**Examples:**
+
+```java
+BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+System.out.println(attrs.creationTime());
+
+FileTime newTime = FileTime.fromMillis(System.currentTimeMillis());
+Files.setLastModifiedTime(path, newTime);
+```
+
+| Method                             | Purpose                      |
+| ---------------------------------- | ---------------------------- |
+| `readAttributes(path, type)`       | Read file attributes         |
+| `setAttribute(path, name, value)`  | Modify single attribute      |
+| `getFileAttributeView(path, type)` | Get updatable attribute view |
+
+**Two attribute approaches:**
+
+* **Read-only:** via `readAttributes()`
+* **Updatable:** via `getFileAttributeView()`
+
+Also supports **OS-specific attributes** (e.g., POSIX, DOS).
+
+---
+
+## 🔹 Best Practices
+
+* Always use **try-with-resources** to close streams safely.
+* Use **Buffered** or **NIO.2 Streams** for performance.
+* Avoid manual path concatenation — use `resolve()` instead.
+* Use **Object streams** for serialization when needed.
+* Leverage **Streams API** with `Files.walk()` for powerful directory processing.
+
+---
+
+## 📝 Exam Tips
+
+* Know the difference between **File (I/O)** and **Path (NIO.2)**.
+* Remember that **most `Files` methods throw `IOException`**.
+* Understand **stream hierarchy**: byte vs character, input vs output, low vs high-level.
+* Recognize common **stream wrapper chains** (e.g., `BufferedReader → FileReader`).
+* Be able to identify **serialization requirements** (`Serializable`, `transient`).
+* Understand **`Files.walk()` vs `Files.list()`** vs `Files.find()`.
+* Know how to access **metadata** and **file attributes** via NIO.2.
+* Expect exam questions about **try-with-resources** and **suppressed exceptions**.
+
+---
+
+
